@@ -8,6 +8,7 @@ public class AppPreference {
 
     SharedPreferences prefs;
     Context context;
+    private String KEY_MODE = "mode_bahasa";
 
     public AppPreference(Context context) {
         prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -25,5 +26,16 @@ public class AppPreference {
         String key = context.getResources().getString(R.string.app_first_run);
         return prefs.getBoolean(key, true);
     }
+
+    public void setModeBahasa(String name) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(KEY_MODE, name);
+        editor.apply();
+    }
+    public String getModeBahasa() {
+        return prefs.getString(KEY_MODE, "table_eng_ind");
+    }
+
+
 
 }

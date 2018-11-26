@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_english_to_indo"
+        android:title="@string/english_indo"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_indo_to_english"
+        android:title="@string/indo_english"
+        app:showAsAction="never"/>
+
+</menu>

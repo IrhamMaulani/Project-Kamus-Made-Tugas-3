@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.user.kamus.db.KamusHelper;
 import com.example.user.kamus.model.KamusModel;
@@ -16,15 +17,19 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
+public class MainActivity extends AppCompatActivity {
+    @BindView(R.id.progress_bar)
     ProgressBar progressBar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        ButterKnife.bind(this);
 
         new LoadData().execute();
     }
@@ -32,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private class LoadData extends AsyncTask<Void, Integer, Void> {
         final String TAG = LoadData.class.getSimpleName();
         KamusHelper kamusHelper;
-        AppPreference appPreference;
+      AppPreference appPreference;
         double progress;
         double maxprogress = 100;
 
@@ -50,20 +55,34 @@ public class MainActivity extends AppCompatActivity {
 
             if (firstRun) {
 
-                ArrayList<KamusModel> kamusModels = preLoadRaw();
+                ArrayList<KamusModel> kamusEnglish = preLoadRaw(R.raw.english_indonesia);
+                ArrayList<KamusModel> kamusIndonesia = preLoadRaw(R.raw.indonesia_english);
 
                 kamusHelper.open();
 
                 progress = 30;
                 publishProgress((int) progress);
                 Double progressMaxInsert = 80.0;
-                Double progressDiff = (progressMaxInsert - progress) / kamusModels.size();
+                Double progressDiff = (progressMaxInsert - progress) / (kamusEnglish.size() + kamusIndonesia.size());
 
                 kamusHelper.beginTransaction();
 
                 try {
-                    for (KamusModel model : kamusModels) {
-                        kamusHelper.insertTransaction(model);
+                    for (KamusModel model : kamusEnglish) {
+                        kamusHelper.insertTransaction(model,true);
+                        progress += progressDiff;
+                        publishProgress((int) progress);
+                    }
+                    // Jika semua proses telah di set success maka akan di commit ke database
+                    kamusHelper.setTransactionSuccess();
+                } catch (Exception e) {
+                    // Jika gagal maka do nothing
+                    Log.e(TAG, "doInBackground: Exception");
+                }
+
+                try {
+                    for (KamusModel model : kamusIndonesia) {
+                        kamusHelper.insertTransaction(model,false);
                         progress += progressDiff;
                         publishProgress((int) progress);
                     }
@@ -110,14 +129,16 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
     }
-
-    public ArrayList<KamusModel> preLoadRaw() {
+    public ArrayList<KamusModel> preLoadRaw( int data ) {
         ArrayList<KamusModel> kamusModels = new ArrayList<>();
         String line = null;
         BufferedReader reader;
+
         try {
             Resources res = getResources();
-            InputStream raw_dict = res.openRawResource(R.raw.indonesia_english);
+
+            InputStream raw_dict = res.openRawResource(data);
+
 
             reader = new BufferedReader(new InputStreamReader(raw_dict));
             int count = 0;

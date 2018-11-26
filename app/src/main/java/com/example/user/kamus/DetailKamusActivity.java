@@ -30,7 +30,5 @@ public class DetailKamusActivity extends AppCompatActivity {
         textKalimat.setText(kamusModel.getKalimat());
         textArti.setText(kamusModel.getArti());
 
-        Log.v("coba" , "hehe" + kamusModel);
-
     }
 }

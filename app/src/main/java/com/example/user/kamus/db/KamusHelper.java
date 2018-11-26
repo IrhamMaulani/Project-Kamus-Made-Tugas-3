@@ -7,6 +7,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 
+import com.example.user.kamus.AppPreference;
 import com.example.user.kamus.model.KamusModel;
 
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import static android.provider.BaseColumns._ID;
 import static com.example.user.kamus.db.DatabaseContract.KamusColumns.ARTI;
 import static com.example.user.kamus.db.DatabaseContract.KamusColumns.KALIMAT;
+import static com.example.user.kamus.db.DatabaseContract.TABLE_ENG_IND;
 import static com.example.user.kamus.db.DatabaseContract.TABLE_IND_ENG;
 
 public class KamusHelper {
@@ -22,6 +24,12 @@ public class KamusHelper {
     private DatabaseHelper dataBaseHelper;
 
     private SQLiteDatabase database;
+    private AppPreference appPreference;
+    private String TABLE_USE;
+
+
+
+
 
     public KamusHelper(Context context){
         this.context = context;
@@ -37,9 +45,10 @@ public class KamusHelper {
         dataBaseHelper.close();
     }
 
-    public ArrayList<KamusModel> getDataByName(String nama){
+    public ArrayList<KamusModel> getDataByName(String nama, String DATABASE_NAME){
+
         String result = "";
-        Cursor cursor = database.query(TABLE_IND_ENG,null,KALIMAT+" LIKE ?",new String[]{nama},null,null,_ID + " ASC",null);
+        Cursor cursor = database.query(DATABASE_NAME,null,KALIMAT+" LIKE ?",new String[]{nama},null,null,_ID + " ASC",null);
         cursor.moveToFirst();
         ArrayList<KamusModel> arrayList = new ArrayList<>();
         KamusModel kamusModel;
@@ -60,8 +69,8 @@ public class KamusHelper {
     }
 
 
-    public ArrayList<KamusModel> getAllData(){
-        Cursor cursor = database.query(TABLE_IND_ENG,null,null,null,null,null,_ID+ " ASC",null);
+    public ArrayList<KamusModel> getAllData(String DATABASE_NAME){
+        Cursor cursor = database.query(DATABASE_NAME,null,null,null,null,null,_ID+ " ASC",null);
         cursor.moveToFirst();
         ArrayList<KamusModel> arrayList = new ArrayList<>();
         KamusModel kamusModel;
@@ -101,14 +110,24 @@ public class KamusHelper {
         database.endTransaction();
     }
 
-    public void insertTransaction(KamusModel kamusModel){
-        String sql = "INSERT INTO "+TABLE_IND_ENG+" ("+KALIMAT+", "+ARTI
+    public void insertTransaction(KamusModel kamusModel,boolean isEnglish){
+
+        String DATABASE_NAME ;
+
+        if(isEnglish){
+            DATABASE_NAME = "table_eng_ind";
+        }else{
+            DATABASE_NAME = "table_ind_eng";
+        }
+
+        String sql = "INSERT INTO "+DATABASE_NAME+" ("+KALIMAT+", "+ARTI
                 +") VALUES (?, ?)";
         SQLiteStatement stmt = database.compileStatement(sql);
         stmt.bindString(1, kamusModel.getKalimat());
         stmt.bindString(2, kamusModel.getArti());
         stmt.execute();
         stmt.clearBindings();
+
 
     }
 
