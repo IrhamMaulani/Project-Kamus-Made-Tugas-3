@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Kamus</string>
+    <string name="loading">Loading</string>
+    <string name="search">Search</string>
+    <string name="gajah">gajah</string>
+    <string name="app_first_run">first_run</string>
+</resources>
